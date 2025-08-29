@@ -1,6 +1,8 @@
 #include "Controller.h"
 #include "RTClib.h"  // Make sure this is included in the Controller's cpp
 
+// Provide the out-of-class definition for the static constexpr array
+constexpr uint8_t Controller::PIN_MAP[Controller::BTN_COUNT];
 extern RTC_DS1307 rtc;
 /**
  * @brief Constructor - Initializes controller with model reference
@@ -38,17 +40,15 @@ bool Controller::initialize() {
  * Uses INPUT_PULLUP mode with active-low logic
  */
 void Controller::initializeButtons() {
- // Button configuration with pin numbers and initial states
-   m_buttons[0] = {BTN_UP_PIN, HIGH, 0, false};      // Up button
-  m_buttons[1] = {BTN_DOWN_PIN, HIGH, 0, false};    // Down button
-  m_buttons[2] = {BTN_LEFT_PIN, HIGH, 0, false};    // Left button
-  m_buttons[3] = {BTN_RIGHT_PIN, HIGH, 0, false};   // Right button
-  m_buttons[4] = {BTN_SELECT1_PIN, HIGH, 0, false}; // Primary select
-  m_buttons[5] = {BTN_SELECT2_PIN, HIGH, 0, false}; // Secondary select
-  
-  // Configure all button pins as INPUT_PULLUP
-  for (int i = 0; i < 6; i++) {
-    pinMode(m_buttons[i].pin, INPUT_PULLUP);
+  // Configure all button pins as INPUT_PULLUP and initialize configs
+  for (uint8_t i = 0; i < BTN_COUNT; ++i) {
+    pinMode(PIN_MAP[i], INPUT_PULLUP);
+    m_buttons[i].init(PIN_MAP[i]);
+    // ensure known state
+    m_buttons[i].lastState = digitalRead(m_buttons[i].pin);
+    m_buttons[i].pressed = (m_buttons[i].lastState == LOW);
+    m_buttons[i].lastDebounceTime = millis();
+    m_buttons[i].lastRepeatTime = 0;
   }
 }
 
@@ -56,35 +56,57 @@ void Controller::initializeButtons() {
  * @brief Starts the controller task
  * @return true if task started successfully, false otherwise
  */
-bool Controller::start() {
+bool Controller::start(UBaseType_t priority, uint32_t stackSize) {
   if (m_taskHandle != nullptr) {
     Serial.println("Controller task already running");
     return false;
   }
   
-  // Create FreeRTOS task for button handling
+    // Create FreeRTOS task for button handling
+  // Set running after successful creation to avoid races
   BaseType_t result = xTaskCreate(
     taskWrapper,
     "ButtonTask",
-    2048, // Stack size
+    stackSize == 0 ? 2048 : stackSize, // fallback stack size
     this, // Task parameter
-    2,    // Priority (higher than display tasks)
+    priority == 0 ? 2 : priority,    // fallback priority
     &m_taskHandle
   );
-  
-  return result == pdPASS;
-  // pdPASS indicates success
+
+  if (result != pdPASS) {
+    Serial.println("Failed to create ButtonTask");
+    m_taskHandle = nullptr;
+    m_running = false;
+    return false;
+  }
+
+  m_running = true;
+  return true;
 }
 
+
 /**
- * @brief Stops the controller task
+ * @brief Stops the controller task (graceful)
  */
 void Controller::stop() {
+  // Request graceful stop
+  m_running = false;
+
+  // Wait briefly for task to exit and clear m_taskHandle
+  const TickType_t waitTicks = pdMS_TO_TICKS(200);
+  TickType_t start = xTaskGetTickCount();
+  while (m_taskHandle != nullptr && (xTaskGetTickCount() - start) < waitTicks) {
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+
+  // If still alive after timeout, force-delete (last resort)
   if (m_taskHandle != nullptr) {
+    Serial.println("Forcing Controller task delete");
     vTaskDelete(m_taskHandle);
     m_taskHandle = nullptr;
   }
 }
+
 
 /**
  * @brief FreeRTOS task wrapper function
@@ -102,7 +124,7 @@ void Controller::taskWrapper(void* pvParameters) {
 void Controller::buttonTask() {
   Serial.println("Button task started");
   
-  while (true) {
+  while (m_running) {
     SystemEvent event = readButtons();
     
     if (event != EVENT_NONE) {
@@ -111,6 +133,10 @@ void Controller::buttonTask() {
     
     vTaskDelay(pdMS_TO_TICKS(10)); // 10ms polling rate
   }
+
+  // clear handle and delete self from task context
+  m_taskHandle = nullptr;
+  vTaskDelete(nullptr);
 }
 
 /**
@@ -120,7 +146,7 @@ void Controller::buttonTask() {
 SystemEvent Controller::readButtons() {
   unsigned long currentTime = millis();
   
-  for (int i = 0; i < 6; i++) {
+  for (uint8_t i = 0; i < BTN_COUNT; ++i) {
     bool currentState = digitalRead(m_buttons[i].pin);
     
     // Check for state change
@@ -129,7 +155,7 @@ SystemEvent Controller::readButtons() {
     }
     
     // Check if debounce period has passed
-    if ((currentTime - m_buttons[i].lastDebounceTime) > DEBOUNCE_DELAY) {
+    if ((currentTime - m_buttons[i].lastDebounceTime) > DEBOUNCE_DELAY_MS) {
       // Detect button press (LOW for pull-up)
       if (!m_buttons[i].pressed && currentState == LOW) {
         m_buttons[i].pressed = true;
@@ -137,12 +163,13 @@ SystemEvent Controller::readButtons() {
         
         // Return corresponding event
         switch (i) {
-          case 0: return EVENT_UP;
-          case 1: return EVENT_DOWN;
-          case 2: return EVENT_LEFT;
-          case 3: return EVENT_RIGHT;
-          case 4: return EVENT_SELECT1;
-          case 5: return EVENT_SELECT2;
+          case BTN_UP:     return EVENT_UP;
+          case BTN_DOWN:   return EVENT_DOWN;
+          case BTN_LEFT:   return EVENT_LEFT;
+          case BTN_RIGHT:  return EVENT_RIGHT;
+          case BTN_SELECT1:return EVENT_SELECT1;
+          case BTN_SELECT2:return EVENT_SELECT2;
+          default: break;
         }
       }
       // Detect button release
@@ -156,6 +183,7 @@ SystemEvent Controller::readButtons() {
   
   return EVENT_NONE;
 }
+
 
 /**
  * @brief Handles system events based on current state
@@ -178,9 +206,10 @@ void Controller::handleEvent(SystemEvent event) {
     case STATE_CONFIRM_EXIT:
       handleConfirmExitState(event);
       break;
+    default:
+      break;
   }
 }
-
 // State-specific event handlers
 void Controller::handleMenuState(SystemEvent event) {
   switch (event) {
