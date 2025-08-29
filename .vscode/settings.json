@@ -6,5 +6,6 @@
         "unordered_set": "cpp",
         "vector": "cpp",
         "system_error": "cpp"
-    }
+    },
+    "editor.fontSize": 13
 }
