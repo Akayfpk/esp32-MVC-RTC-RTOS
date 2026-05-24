@@ -137,12 +137,12 @@ void OLEDView::drawMenu() {
   // Scroll indicators (top/bottom carets) when more items exist off-window
   if (first > 0) {
     m_oled->setTextColor(SSD1306_WHITE);
-    m_oled->setCursor(SCREEN_WIDTH - 6, 13);
+    m_oled->setCursor(SCREEN_WIDTH - 6, 15);
     m_oled->print('^');
   }
   if (first + visible < menuLength) {
     m_oled->setTextColor(SSD1306_WHITE);
-    m_oled->setCursor(SCREEN_WIDTH - 6, 13 + (visible - 1) * 10);
+    m_oled->setCursor(SCREEN_WIDTH - 6, 15 + (visible - 1) * 10);
     m_oled->print('v');
   }
 
