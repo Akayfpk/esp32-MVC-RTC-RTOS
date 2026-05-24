@@ -63,6 +63,8 @@ private:
   void handleMenuState(SystemEvent event);
   void handleSettingsState(SystemEvent event);
   void handleAboutState(SystemEvent event);
+  void handleInputsState(SystemEvent event);
+  void handleOutputsState(SystemEvent event);
   void handleConfirmExitState(SystemEvent event);
   
   // Static task wrapper

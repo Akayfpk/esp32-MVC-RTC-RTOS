@@ -12,6 +12,8 @@ private:
   void displayMenu();
   void displaySettings();
   void displayAbout();
+  void displayInputs();
+  void displayOutputs();
   void displayConfirmExit();
   void clearAndPrint(const char* line1, const char* line2 = nullptr);
 
@@ -32,6 +34,8 @@ public:
   void renderMenuState() override;
   void renderSettingsState() override;
   void renderAboutState() override;
+  void renderInputsState() override;
+  void renderOutputsState() override;
   void renderConfirmExitState() override;
 };
 

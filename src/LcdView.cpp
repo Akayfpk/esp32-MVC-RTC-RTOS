@@ -78,6 +78,12 @@ void LCDView::renderDisplay() {
     case STATE_ABOUT:
       renderAboutState();
       break;
+    case STATE_INPUTS:
+      renderInputsState();
+      break;
+    case STATE_OUTPUTS:
+      renderOutputsState();
+      break;
     case STATE_CONFIRM_EXIT:
       renderConfirmExitState();
       break;
@@ -95,6 +101,14 @@ void LCDView::renderSettingsState() {
 
 void LCDView::renderAboutState() {
   displayAbout();
+}
+
+void LCDView::renderInputsState() {
+  displayInputs();
+}
+
+void LCDView::renderOutputsState() {
+  displayOutputs();
 }
 
 void LCDView::renderConfirmExitState() {
@@ -137,6 +151,20 @@ void LCDView::displaySettings() {
  */
 void LCDView::displayAbout() {
   clearAndPrint("About", "ESP32 Menu v1.0");
+}
+
+/**
+ * @brief Displays the inputs state on LCD (placeholder)
+ */
+void LCDView::displayInputs() {
+  clearAndPrint("Inputs", "SEL2/LEFT: Back");
+}
+
+/**
+ * @brief Displays the outputs state on LCD (placeholder)
+ */
+void LCDView::displayOutputs() {
+  clearAndPrint("Outputs", "SEL2/LEFT: Back");
 }
 
 /**

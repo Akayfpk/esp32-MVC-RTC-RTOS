@@ -19,6 +19,8 @@ private:
   void drawMenu();
   void drawSettings();
   void drawAbout();
+  void drawInputs();
+  void drawOutputs();
   void drawConfirmExit();
   void drawHeader(const char* title);
   void drawMenuItem(int index, int row, bool selected);
@@ -43,6 +45,8 @@ public:
   void renderMenuState() override;
   void renderSettingsState() override;
   void renderAboutState() override;
+  void renderInputsState() override;
+  void renderOutputsState() override;
   void renderConfirmExitState() override;
 };
 

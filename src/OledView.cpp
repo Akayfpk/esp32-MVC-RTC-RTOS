@@ -85,6 +85,12 @@ void OLEDView::renderDisplay() {
     case STATE_ABOUT:
       renderAboutState();
       break;
+    case STATE_INPUTS:
+      renderInputsState();
+      break;
+    case STATE_OUTPUTS:
+      renderOutputsState();
+      break;
     case STATE_CONFIRM_EXIT:
       renderConfirmExitState();
       break;
@@ -102,6 +108,14 @@ void OLEDView::renderSettingsState() {
 
 void OLEDView::renderAboutState() {
   drawAbout();
+}
+
+void OLEDView::renderInputsState() {
+  drawInputs();
+}
+
+void OLEDView::renderOutputsState() {
+  drawOutputs();
 }
 
 void OLEDView::renderConfirmExitState() {
@@ -197,6 +211,46 @@ void OLEDView::drawAbout() {
   m_oled->setCursor(0, SCREEN_HEIGHT - 8);
   m_oled->print("LEFT/SELECT2: Back");
   
+  m_oled->display();
+}
+
+/**
+ * @brief Renders the inputs view (placeholder)
+ */
+void OLEDView::drawInputs() {
+  m_oled->clearDisplay();
+  drawHeader("Inputs");
+
+  m_oled->setCursor(0, 20);
+  m_oled->setTextSize(1);
+  m_oled->println("TODO: pin status");
+  m_oled->println("");
+  m_oled->println("Read GPIO inputs");
+  m_oled->println("here in future.");
+
+  m_oled->setCursor(0, SCREEN_HEIGHT - 8);
+  m_oled->print("LEFT/SELECT2: Back");
+
+  m_oled->display();
+}
+
+/**
+ * @brief Renders the outputs view (placeholder)
+ */
+void OLEDView::drawOutputs() {
+  m_oled->clearDisplay();
+  drawHeader("Outputs");
+
+  m_oled->setCursor(0, 20);
+  m_oled->setTextSize(1);
+  m_oled->println("TODO: pin control");
+  m_oled->println("");
+  m_oled->println("Toggle GPIO outputs");
+  m_oled->println("here in future.");
+
+  m_oled->setCursor(0, SCREEN_HEIGHT - 8);
+  m_oled->print("LEFT/SELECT2: Back");
+
   m_oled->display();
 }
 

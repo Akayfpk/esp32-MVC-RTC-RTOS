@@ -38,6 +38,8 @@ public:
   virtual void renderMenuState();
   virtual void renderSettingsState();
   virtual void renderAboutState();
+  virtual void renderInputsState();
+  virtual void renderOutputsState();
   virtual void renderConfirmExitState();
 };
 

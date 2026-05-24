@@ -109,6 +109,16 @@ void View::renderAboutState() {
   Serial.println("Default about render");
 }
 
+void View::renderInputsState() {
+  // Default implementation - to be overridden
+  Serial.println("Default inputs render");
+}
+
+void View::renderOutputsState() {
+  // Default implementation - to be overridden
+  Serial.println("Default outputs render");
+}
+
 void View::renderConfirmExitState() {
   // Default implementation - to be overridden
   Serial.println("Default confirm exit render");
