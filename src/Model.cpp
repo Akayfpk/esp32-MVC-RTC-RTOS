@@ -3,7 +3,7 @@
 
 // Initialize static members
 Model* Model::m_instance = nullptr;
-const char* Model::m_menuItems[] = { "Home", "Settings", "About", "Exit" };
+const char* Model::m_menuItems[] = { "Home", "Settings", "About", "Inputs", "Outputs", "Exit" };
 const int Model::m_menuLength = sizeof(Model::m_menuItems) / sizeof(Model::m_menuItems[0]);
 
 Model::Model() 
