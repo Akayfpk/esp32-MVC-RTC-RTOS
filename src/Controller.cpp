@@ -242,7 +242,13 @@ void Controller::handleMenuState(SystemEvent event) {
           case 2: // About
             m_model->setState(STATE_ABOUT);
             break;
-          case 3: // Exit
+          case 3: // Inputs (placeholder - no state yet)
+            Serial.println("Inputs selected (not implemented)");
+            break;
+          case 4: // Outputs (placeholder - no state yet)
+            Serial.println("Outputs selected (not implemented)");
+            break;
+          case 5: // Exit
             m_model->setState(STATE_CONFIRM_EXIT);
             break;
         }
