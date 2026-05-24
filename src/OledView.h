@@ -21,7 +21,10 @@ private:
   void drawAbout();
   void drawConfirmExit();
   void drawHeader(const char* title);
-  void drawMenuItem(int index, bool selected);
+  void drawMenuItem(int index, int row, bool selected);
+
+  // Number of menu rows visible at once in the scroll window
+  static const int MENU_VISIBLE_ROWS = 4;
 
 protected:
   // Override virtual methods from View
