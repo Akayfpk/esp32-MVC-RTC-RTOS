@@ -203,6 +203,12 @@ void Controller::handleEvent(SystemEvent event) {
     case STATE_ABOUT:
       handleAboutState(event);
       break;
+    case STATE_INPUTS:
+      handleInputsState(event);
+      break;
+    case STATE_OUTPUTS:
+      handleOutputsState(event);
+      break;
     case STATE_CONFIRM_EXIT:
       handleConfirmExitState(event);
       break;
@@ -242,7 +248,13 @@ void Controller::handleMenuState(SystemEvent event) {
           case 2: // About
             m_model->setState(STATE_ABOUT);
             break;
-          case 3: // Exit
+          case 3: // Inputs
+            m_model->setState(STATE_INPUTS);
+            break;
+          case 4: // Outputs
+            m_model->setState(STATE_OUTPUTS);
+            break;
+          case 5: // Exit
             m_model->setState(STATE_CONFIRM_EXIT);
             break;
         }
@@ -277,6 +289,30 @@ void Controller::handleAboutState(SystemEvent event) {
     case EVENT_SELECT2:
       m_model->setState(STATE_MENU);
       Serial.println("Returning to menu from about");
+      break;
+    default:
+      break;
+  }
+}
+
+void Controller::handleInputsState(SystemEvent event) {
+  switch (event) {
+    case EVENT_LEFT:
+    case EVENT_SELECT2:
+      m_model->setState(STATE_MENU);
+      Serial.println("Returning to menu from inputs");
+      break;
+    default:
+      break;
+  }
+}
+
+void Controller::handleOutputsState(SystemEvent event) {
+  switch (event) {
+    case EVENT_LEFT:
+    case EVENT_SELECT2:
+      m_model->setState(STATE_MENU);
+      Serial.println("Returning to menu from outputs");
       break;
     default:
       break;
